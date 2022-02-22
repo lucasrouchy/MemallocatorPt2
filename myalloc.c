@@ -1,6 +1,19 @@
 #include "myalloc.h"
 struct block *head = NULL;
 
+void split_space(struct block* curr, int requested_size){
+  int available = curr->size;
+  int requested_padded_size = PADDED_SIZE(requested_size);
+  int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
+  int min_size = requested_padded_size + padded_struct_block_size;
+  if (available < min_size + 16) return;
+
+  struct block *split_node = PTR_OFFSET(curr, min_size);
+  split_node->size = available - min_size;
+  curr->size = requested_padded_size;
+  curr->next = split_node;
+
+}
 
 void *myalloc(int num){
     if (head == NULL) {
@@ -15,8 +28,7 @@ void *myalloc(int num){
 
     while (current != NULL){
       if (current->in_use == 0 && current->size >= padded_num){
-
-
+        split_space(current, num);
         current->in_use = 1;
         int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
         return PTR_OFFSET(current, padded_struct_block_size);
@@ -50,16 +62,17 @@ void print_data(void)
 
     printf("\n");
 }
-void split_space(struct block* curr, int requested_size){
-  int available = curr->size;
-  int requested_padded_size = PADDED_SIZE(requested_size);
-  int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
-}
 
+
+void myfree(void *p){
+
+
+}
 int main(void){
     void *p;
 
     print_data();
     p = myalloc(512);
     print_data();
+
 }
