@@ -9,11 +9,23 @@ void *myalloc(int num){
       head->size = 1024 - PADDED_SIZE(sizeof(struct block));
       head->in_use = 0;
     }
-    struct block *current;
+    struct block *current = head;
 
-    int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
+    int padded_num = PADDED_SIZE(num);
 
-    return PTR_OFFSET(current, padded_struct_block_size);
+    while (current != NULL){
+      if (current->in_use == 0 && current->size >= padded_num){
+
+
+        current->in_use = 1;
+        int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
+        return PTR_OFFSET(current, padded_struct_block_size);
+
+      }
+      current = current->next;
+    }
+    return NULL;
+
 }
 
 void print_data(void)
@@ -38,12 +50,16 @@ void print_data(void)
 
     printf("\n");
 }
-
+void split_space(struct block* curr, int requested_size){
+  int available = curr->size;
+  int requested_padded_size = PADDED_SIZE(requested_size);
+  int padded_struct_block_size = PADDED_SIZE(sizeof(struct block));
+}
 
 int main(void){
     void *p;
 
     print_data();
-    p = myalloc(64);
+    p = myalloc(512);
     print_data();
 }
